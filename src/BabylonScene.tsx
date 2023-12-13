@@ -1,8 +1,13 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, TransformNode, Animation } from 'babylonjs';
 import 'babylonjs-loaders';
 
-const BabylonScene: React.FC = () => {
+interface BabylonSceneProps {
+    setObjectSelected: React.Dispatch<React.SetStateAction<null>>;
+}
+
+const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected }) => {
+
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const currentSelectedObject: any = useRef(null)
     const sceneRef: any = useRef(null)
@@ -101,6 +106,7 @@ const BabylonScene: React.FC = () => {
                 if (!currentSelectedObject.current) {
                     return
                 }
+                setObjectSelected(currentSelectedObject.current)
                 const { amplitude, duration } = customEvent.detail;
                 applyBouncing(currentSelectedObject.current, amplitude, duration);
             }
