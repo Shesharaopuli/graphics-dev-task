@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, TransformNode, Animation } from 'babylonjs';
 import 'babylonjs-loaders';
 
@@ -7,18 +7,11 @@ const BabylonScene: React.FC = () => {
     const currentSelectedObject: any = useRef(null)
     const sceneRef: any = useRef(null)
 
-    const runAnimation = () => {
-        if (!currentSelectedObject.current) {
-            return
-        }
-        applyBouncing(currentSelectedObject.current, 2, 100);
-    }
     const applyBouncing = (node: TransformNode, amplitude: number, duration: number, iterations: number = 6) => {
         if (!sceneRef.current) {
             return
         }
         const bounceAnimation = new Animation("bouncingAnimation", "position.y", 60, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
-
         // Animation keys
         const keys = [];
         let currentAmplitude = amplitude;
@@ -40,10 +33,8 @@ const BabylonScene: React.FC = () => {
         }
         // Set keys
         bounceAnimation.setKeys(keys);
-
         // Attach animation to the mesh
         node.animations.push(bounceAnimation);
-
         // Run the animation
         sceneRef.current.beginWeightedAnimation(node, 0, duration, 10, true);
     }
@@ -73,7 +64,7 @@ const BabylonScene: React.FC = () => {
             const plane = MeshBuilder.CreateBox("Plane", { height: 0.5, width: 0.5, depth: 0.5 }, scene);
             plane.position.set(0, 0, 0);
 
-            const cylinder = MeshBuilder.CreateCylinder("Cylinder", { diameter: 0.5, height: 0.5 }, scene);
+            const cylinder = MeshBuilder.CreateCylinder("Cylinder", { diameter: 0.5, height: 1 }, scene);
             cylinder.position.set(2, 0, 0);
         }
 
@@ -88,19 +79,39 @@ const BabylonScene: React.FC = () => {
             const pickResult = scene.pick(scene.pointerX, scene.pointerY);
             if (pickResult && pickResult.hit && pickResult.pickedMesh) {
                 currentSelectedObject.current = pickResult.pickedMesh;
-                runAnimation()
+                document.dispatchEvent(new CustomEvent("objectSelected", { detail: { amplitude: 2, duration: 200 } }));
             }
         };
 
         window.addEventListener("resize", () => {
             engine.resize();
         });
-
         return () => {
             // Cleanup Babylon.js resources if needed
             engine.dispose();
+
         };
     }, []); // Empty dependency array ensures this effect runs once after the initial render
+
+    useEffect(() => {
+        const handleObjectSelected = (event: Event) => {
+            // Access Babylon.js objects from the event details
+            const customEvent = event as CustomEvent;
+            if (customEvent.detail) {
+                if (!currentSelectedObject.current) {
+                    return
+                }
+                const { amplitude, duration } = customEvent.detail;
+                applyBouncing(currentSelectedObject.current, amplitude, duration);
+            }
+        };
+
+        document.addEventListener('objectSelected', handleObjectSelected);
+
+        return () => {
+            document.removeEventListener('objectSelected', handleObjectSelected);
+        };
+    }, []);
 
     return <canvas id="canvas" ref={canvasRef} />;
 };
