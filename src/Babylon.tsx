@@ -1,10 +1,52 @@
 import React, { useEffect, useRef } from 'react';
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, Quaternion } from 'babylonjs';
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, TransformNode, Animation } from 'babylonjs';
 import 'babylonjs-loaders';
 
 const BabylonScene: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const currentSelectedObject: any = useRef(null)
+    const sceneRef: any = useRef(null)
 
+    const runAnimation = () => {
+        if (!currentSelectedObject.current) {
+            return
+        }
+        applyBouncing(currentSelectedObject.current, 2, 100);
+    }
+    const applyBouncing = (node: TransformNode, amplitude: number, duration: number, iterations: number = 6) => {
+        if (!sceneRef.current) {
+            return
+        }
+        const bounceAnimation = new Animation("bouncingAnimation", "position.y", 60, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
+
+        // Animation keys
+        const keys = [];
+        let currentAmplitude = amplitude;
+
+        for (let i = 0; i <= iterations; i++) {
+            keys.push({
+                frame: i * duration / iterations,
+                value: node.position.y + currentAmplitude,
+                easing: new BABYLON.QuadraticEase()
+            });
+
+            keys.push({
+                frame: (i + 0.5) * duration / iterations,
+                value: node.position.y,
+                easing: new BABYLON.QuadraticEase()
+            });
+
+            currentAmplitude /= 1.6; // Decrease amplitude for the next iteration
+        }
+        // Set keys
+        bounceAnimation.setKeys(keys);
+
+        // Attach animation to the mesh
+        node.animations.push(bounceAnimation);
+
+        // Run the animation
+        sceneRef.current.beginWeightedAnimation(node, 0, duration, 10, true);
+    }
     useEffect(() => {
         const canvas = canvasRef.current;
 
@@ -15,23 +57,23 @@ const BabylonScene: React.FC = () => {
 
         const engine = new Engine(canvas, true, {});
         const scene = new Scene(engine);
+        sceneRef.current = scene
 
-        function prepareScene() {
+        const prepareScene = () => {
             // Camera
             const camera = new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 4, new Vector3(0, 0, 0), scene);
             camera.attachControl(canvas, true);
 
             // Light
             new HemisphericLight("light", new Vector3(0.5, 1, 0.8).normalize(), scene);
-
             // Objects
-            const plane = MeshBuilder.CreateBox("Plane", {}, scene);
-            plane.rotationQuaternion = Quaternion.FromEulerAngles(0, Math.PI, 0);
-
-            const icosphere = MeshBuilder.CreateIcoSphere("IcoSphere", {}, scene);
+            const icosphere = MeshBuilder.CreateIcoSphere("IcoSphere", { radius: 0.5 }, scene);
             icosphere.position.set(-2, 0, 0);
 
-            const cylinder = MeshBuilder.CreateCylinder("Cylinder", {}, scene);
+            const plane = MeshBuilder.CreateBox("Plane", { height: 0.5, width: 0.5, depth: 0.5 }, scene);
+            plane.position.set(0, 0, 0);
+
+            const cylinder = MeshBuilder.CreateCylinder("Cylinder", { diameter: 0.5, height: 0.5 }, scene);
             cylinder.position.set(2, 0, 0);
         }
 
@@ -40,6 +82,15 @@ const BabylonScene: React.FC = () => {
         engine.runRenderLoop(() => {
             scene.render();
         });
+
+        // Enable picking for meshes
+        scene.onPointerDown = (evt) => {
+            const pickResult = scene.pick(scene.pointerX, scene.pointerY);
+            if (pickResult && pickResult.hit && pickResult.pickedMesh) {
+                currentSelectedObject.current = pickResult.pickedMesh;
+                runAnimation()
+            }
+        };
 
         window.addEventListener("resize", () => {
             engine.resize();
