@@ -1,3 +1,4 @@
+import { TransformNode } from "babylonjs";
 import { useReducer } from "react";
 
 // Define the state type
@@ -24,7 +25,10 @@ const reducer = (state: PlaneState, action: PlaneAction): PlaneState => {
     }
 };
 export const PLANE_DEFAULTS = { width: 0.5, height: 0.5, depth: 0.5 };
-const PlaneInput = () => {
+interface BabylonSceneProps {
+    model: TransformNode | null;
+}
+const PlaneInput: React.FC<BabylonSceneProps> = ({ model }) => {
     const [state, dispatch] = useReducer(reducer, PLANE_DEFAULTS);
     // Action creators to dispatch actions for each input
     const updateWidth = (value: any) => dispatch({ type: 'UPDATE_WIDTH', payload: value });
@@ -36,6 +40,10 @@ const PlaneInput = () => {
     }
     return (
         <div className="controls-container">
+            <div className="control">
+                <label>Selected: <strong>{model?.name}</strong>
+                </label>
+            </div>
             <div className="control">
                 <label htmlFor="plane-width">
                     Width:

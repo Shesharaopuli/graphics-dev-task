@@ -1,3 +1,4 @@
+import { TransformNode } from "babylonjs";
 import { useReducer } from "react";
 
 // Define the state type
@@ -20,7 +21,10 @@ const reducer = (state: IcoSphereState, action: IcoSphereAction): IcoSphereState
     }
 };
 export const ICO_SPHERE_DEFAULTS = { radius: 0.5, subdivisions: 5 };
-const IcoSphereInput = () => {
+interface BabylonSceneProps {
+    model: TransformNode | null;
+}
+const IcoSphereInput: React.FC<BabylonSceneProps> = ({ model }) => {
     const [state, dispatch] = useReducer(reducer, ICO_SPHERE_DEFAULTS);
     // Action creators to dispatch actions for each input
     const updateRadius = (value: any) => dispatch({ type: 'UPDATE_RADIUS', payload: value });
@@ -31,6 +35,10 @@ const IcoSphereInput = () => {
     }
     return (
         <div className="controls-container">
+            <div className="control">
+                <label>Selected: <strong>{model?.name}</strong>
+                </label>
+            </div>
             <div className="control">
                 <label htmlFor="ico-sphere-radius">
                     Radius:

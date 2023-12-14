@@ -1,3 +1,4 @@
+import { TransformNode } from "babylonjs";
 import { useReducer } from "react";
 
 // Define the state type
@@ -20,7 +21,10 @@ const reducer = (state: CylinderState, action: CylinderAction): CylinderState =>
     }
 };
 export const CYLINDER_DEFAULTS = { diameter: 0.5, height: 1 };
-const CylinderInput = () => {
+interface BabylonSceneProps {
+    model: TransformNode | null;
+}
+const CylinderInput: React.FC<BabylonSceneProps> = ({ model }) => {
     const [state, dispatch] = useReducer(reducer, CYLINDER_DEFAULTS);
     // Action creators to dispatch actions for each input
     const updateDiameter = (value: any) => dispatch({ type: 'UPDATE_DIAMETER', payload: value });
@@ -31,6 +35,10 @@ const CylinderInput = () => {
     }
     return (
         <div className="controls-container">
+            <div className="control">
+                <label>Selected: <strong>{model?.name}</strong>
+                </label>
+            </div>
             <div className="control">
                 <label htmlFor="cylinder-diameter">
                     Diameter:

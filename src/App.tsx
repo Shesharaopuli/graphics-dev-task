@@ -11,13 +11,13 @@ function App() {
     let component = null
     switch (object.name) {
       case "IcoSphere":
-        component = <IcoSphereInput />
+        component = <IcoSphereInput model={objectSelected} />
         break;
       case "Plane":
-        component = <PlaneInput />
+        component = <PlaneInput model={objectSelected} />
         break;
       case "Cylinder":
-        component = <CylinderInput />
+        component = <CylinderInput model={objectSelected} />
         break;
     }
     return component
