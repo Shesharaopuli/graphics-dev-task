@@ -6,9 +6,10 @@ import IcoSphereInput from './IcoSphereInput';
 import CylinderInput from './CylinderInput';
 
 function App() {
-  const [objectSelected, setObjectSelected] = useState(null)
   const amplitude = 4
   const duration = 200
+
+  const [objectSelected, setObjectSelected] = useState(null)
 
   const animateSelected = () => {
     document.dispatchEvent(new CustomEvent("animateObjectSelected"));
