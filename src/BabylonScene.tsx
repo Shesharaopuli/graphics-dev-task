@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, TransformNode, Animation } from 'babylonjs';
 import 'babylonjs-loaders';
 import { PLANE_DEFAULTS } from './PlaneInput';
@@ -15,8 +15,11 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected }) => {
     const currentSelectedObject: any = useRef(null)
     const sceneRef: any = useRef(null)
 
+    const [animationAmplitude, setAnimationAmplitude] = useState(4)
+    const [animationDuration, setAnimationDuration] = useState(200)
+
     const applyBouncing = (node: TransformNode, amplitude: number, duration: number, iterations: number = 6) => {
-        if (!sceneRef.current) {
+        if (!sceneRef.current || !node) {
             return
         }
         const bounceAnimation = new Animation("bouncingAnimation", "position.y", 60, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT);
@@ -123,15 +126,22 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected }) => {
                 setObjectSelected(currentSelectedObject.current)
                 const { amplitude, duration } = customEvent.detail;
                 applyBouncing(currentSelectedObject.current, amplitude, duration);
+                setAnimationDuration(duration)
+                setAnimationAmplitude(amplitude)
             }
         };
+        const handleAnimateObjectSelected = () => {
+            applyBouncing(currentSelectedObject.current, animationAmplitude, animationDuration);
+        }
 
         document.addEventListener('objectSelected', handleObjectSelected);
+        document.addEventListener('animateObjectSelected', handleAnimateObjectSelected);
 
         return () => {
             document.removeEventListener('objectSelected', handleObjectSelected);
+            document.removeEventListener('animateObjectSelected', handleAnimateObjectSelected);
         };
-    }, []);
+    }, [animationAmplitude, animationDuration, setObjectSelected]);
 
     return <canvas id="canvas" ref={canvasRef} />;
 };

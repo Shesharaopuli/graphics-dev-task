@@ -1,4 +1,4 @@
-import { TransformNode } from "babylonjs";
+import { TransformNode, Vector3 } from "babylonjs";
 import { useReducer } from "react";
 
 // Define the state type
@@ -23,15 +23,20 @@ const reducer = (state: IcoSphereState, action: IcoSphereAction): IcoSphereState
 export const ICO_SPHERE_DEFAULTS = { radius: 0.5, subdivisions: 5 };
 interface BabylonSceneProps {
     model: TransformNode | null;
+    animate: () => void
 }
-const IcoSphereInput: React.FC<BabylonSceneProps> = ({ model }) => {
+const IcoSphereInput: React.FC<BabylonSceneProps> = ({ model, animate }) => {
     const [state, dispatch] = useReducer(reducer, ICO_SPHERE_DEFAULTS);
     // Action creators to dispatch actions for each input
     const updateRadius = (value: any) => dispatch({ type: 'UPDATE_RADIUS', payload: value });
     const updateSubDivisions = (value: any) => dispatch({ type: 'UPDATE_SUBDIVISIONS', payload: value });
 
     const updateObject = () => {
-        console.log(state)
+        const { radius, subdivisions } = state
+        if (model) {
+            model.scaling = new Vector3(radius, radius, radius); // Adjust scaling based on radius
+            // model.subdivisions = subdivisions; // Adjust subdivisions
+        }
     }
     return (
         <div className="controls-container">
@@ -52,7 +57,8 @@ const IcoSphereInput: React.FC<BabylonSceneProps> = ({ model }) => {
                 </label>
             </div>
             <div className="control">
-                <button type="submit" onClick={updateObject}>Apply</button>
+                <button type="submit" className="btn-default btn-primary" onClick={updateObject}>Apply</button>
+                <button type="submit" className="btn-default btn-secondary" onClick={animate}>Animate</button>
             </div>
         </div>
     )

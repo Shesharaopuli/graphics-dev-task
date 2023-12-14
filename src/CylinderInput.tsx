@@ -1,4 +1,4 @@
-import { TransformNode } from "babylonjs";
+import { TransformNode, Vector3 } from "babylonjs";
 import { useReducer } from "react";
 
 // Define the state type
@@ -23,15 +23,19 @@ const reducer = (state: CylinderState, action: CylinderAction): CylinderState =>
 export const CYLINDER_DEFAULTS = { diameter: 0.5, height: 1 };
 interface BabylonSceneProps {
     model: TransformNode | null;
+    animate: () => void
 }
-const CylinderInput: React.FC<BabylonSceneProps> = ({ model }) => {
+const CylinderInput: React.FC<BabylonSceneProps> = ({ model, animate }) => {
     const [state, dispatch] = useReducer(reducer, CYLINDER_DEFAULTS);
     // Action creators to dispatch actions for each input
     const updateDiameter = (value: any) => dispatch({ type: 'UPDATE_DIAMETER', payload: value });
     const updateHeight = (value: any) => dispatch({ type: 'UPDATE_HEIGHT', payload: value });
 
     const updateObject = () => {
-        console.log(state)
+        const { diameter, height } = state
+        if (model) {
+            model.scaling = new Vector3(diameter, diameter, height); // Adjust scaling based on diameter and height
+        }
     }
     return (
         <div className="controls-container">
@@ -52,7 +56,8 @@ const CylinderInput: React.FC<BabylonSceneProps> = ({ model }) => {
                 </label>
             </div>
             <div className="control">
-                <button type="submit" onClick={updateObject}>Apply</button>
+                <button type="submit" className="btn-default btn-primary" onClick={updateObject}>Apply</button>
+                <button type="submit" className="btn-default btn-secondary" onClick={animate}>Animate</button>
             </div>
         </div>
     )

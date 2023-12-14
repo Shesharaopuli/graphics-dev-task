@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import BabylonScene from './BabylonScene';
 import PlaneInput from './PlaneInput';
@@ -7,21 +7,25 @@ import CylinderInput from './CylinderInput';
 
 function App() {
   const [objectSelected, setObjectSelected] = useState(null)
+  const animateSelected = () => {
+    document.dispatchEvent(new CustomEvent("animateObjectSelected"));
+  }
   const getUIByObjectType = (object: any) => {
     let component = null
     switch (object.name) {
       case "IcoSphere":
-        component = <IcoSphereInput model={objectSelected} />
+        component = <IcoSphereInput model={objectSelected} animate={animateSelected} />
         break;
       case "Plane":
-        component = <PlaneInput model={objectSelected} />
+        component = <PlaneInput model={objectSelected} animate={animateSelected} />
         break;
       case "Cylinder":
-        component = <CylinderInput model={objectSelected} />
+        component = <CylinderInput model={objectSelected} animate={animateSelected} />
         break;
     }
     return component
   }
+
   return (
     <div className="main">
       {objectSelected &&
