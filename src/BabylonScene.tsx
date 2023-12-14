@@ -1,6 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, TransformNode, Animation } from 'babylonjs';
 import 'babylonjs-loaders';
+import { PLANE_DEFAULTS } from './PlaneInput';
+import { ICO_SPHERE_DEFAULTS } from './IcoSphereInput';
+import { CYLINDER_DEFAULTS } from './CylinderInput';
 
 interface BabylonSceneProps {
     setObjectSelected: React.Dispatch<React.SetStateAction<null>>;
@@ -59,18 +62,29 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected }) => {
             // Camera
             const camera = new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 4, new Vector3(0, 0, 0), scene);
             camera.attachControl(canvas, true);
-
             // Light
             new HemisphericLight("light", new Vector3(0.5, 1, 0.8).normalize(), scene);
+
+            const createPlane = () => {
+                const { width, height, depth } = PLANE_DEFAULTS
+                const plane = MeshBuilder.CreateBox("Plane", { height, width, depth }, scene);
+                plane.position.set(0, 0, 0);
+            };
+            const createIcoSphere = () => {
+                const { radius, subdivisions } = ICO_SPHERE_DEFAULTS
+                const icosphere = MeshBuilder.CreateIcoSphere("IcoSphere", { radius, subdivisions }, scene);
+                icosphere.position.set(-2, 0, 0);
+            }
+            const createCylinder = () => {
+                const { diameter, height } = CYLINDER_DEFAULTS
+                const cylinder = MeshBuilder.CreateCylinder("Cylinder", { diameter, height }, scene);
+                cylinder.position.set(2, 0, 0);
+            }
+
             // Objects
-            const icosphere = MeshBuilder.CreateIcoSphere("IcoSphere", { radius: 0.5 }, scene);
-            icosphere.position.set(-2, 0, 0);
-
-            const plane = MeshBuilder.CreateBox("Plane", { height: 0.5, width: 0.5, depth: 0.5 }, scene);
-            plane.position.set(0, 0, 0);
-
-            const cylinder = MeshBuilder.CreateCylinder("Cylinder", { diameter: 0.5, height: 1 }, scene);
-            cylinder.position.set(2, 0, 0);
+            createPlane()
+            createIcoSphere()
+            createCylinder()
         }
 
         prepareScene();

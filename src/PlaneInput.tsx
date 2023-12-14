@@ -23,9 +23,9 @@ const reducer = (state: PlaneState, action: PlaneAction): PlaneState => {
             return state;
     }
 };
+export const PLANE_DEFAULTS = { width: 0.5, height: 0.5, depth: 0.5 };
 const PlaneInput = () => {
-    const initialState = { width: 0.5, height: 0.5, depth: 0.5 };
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const [state, dispatch] = useReducer(reducer, PLANE_DEFAULTS);
     // Action creators to dispatch actions for each input
     const updateWidth = (value: any) => dispatch({ type: 'UPDATE_WIDTH', payload: value });
     const updateHeight = (value: any) => dispatch({ type: 'UPDATE_HEIGHT', payload: value });

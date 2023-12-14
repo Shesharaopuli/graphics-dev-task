@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import BabylonScene from './BabylonScene';
 import PlaneInput from './PlaneInput';
+import IcoSphereInput from './IcoSphereInput';
+import CylinderInput from './CylinderInput';
 
 function App() {
   const [objectSelected, setObjectSelected] = useState(null)
@@ -9,12 +11,13 @@ function App() {
     let component = null
     switch (object.name) {
       case "IcoSphere":
-        component = <PlaneInput />
+        component = <IcoSphereInput />
         break;
       case "Plane":
         component = <PlaneInput />
         break;
       case "Cylinder":
+        component = <CylinderInput />
         break;
     }
     return component
