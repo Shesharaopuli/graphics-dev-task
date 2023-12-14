@@ -7,6 +7,9 @@ import CylinderInput from './CylinderInput';
 
 function App() {
   const [objectSelected, setObjectSelected] = useState(null)
+  const amplitude = 4
+  const duration = 200
+
   const animateSelected = () => {
     document.dispatchEvent(new CustomEvent("animateObjectSelected"));
   }
@@ -31,7 +34,7 @@ function App() {
       {objectSelected &&
         getUIByObjectType(objectSelected)
       }
-      <BabylonScene setObjectSelected={setObjectSelected} />
+      <BabylonScene setObjectSelected={setObjectSelected} animationAmplitude={amplitude} animationDuration={duration} />
     </div>
   );
 }

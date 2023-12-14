@@ -35,7 +35,6 @@ const IcoSphereInput: React.FC<BabylonSceneProps> = ({ model, animate }) => {
         const { radius, subdivisions } = state
         if (model) {
             model.scaling = new Vector3(radius, radius, radius); // Adjust scaling based on radius
-            // model.subdivisions = subdivisions; // Adjust subdivisions
         }
     }
     return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, TransformNode, Animation } from 'babylonjs';
 import 'babylonjs-loaders';
 import { PLANE_DEFAULTS } from './PlaneInput';
@@ -7,16 +7,15 @@ import { CYLINDER_DEFAULTS } from './CylinderInput';
 
 interface BabylonSceneProps {
     setObjectSelected: React.Dispatch<React.SetStateAction<null>>;
+    animationAmplitude: number;
+    animationDuration: number;
 }
 
-const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected }) => {
+const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected, animationAmplitude, animationDuration }) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const currentSelectedObject: any = useRef(null)
     const sceneRef: any = useRef(null)
-
-    const [animationAmplitude, setAnimationAmplitude] = useState(4)
-    const [animationDuration, setAnimationDuration] = useState(200)
 
     const applyBouncing = (node: TransformNode, amplitude: number, duration: number, iterations: number = 6) => {
         if (!sceneRef.current || !node) {
@@ -100,8 +99,7 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected }) => {
         scene.onPointerDown = (evt) => {
             const pickResult = scene.pick(scene.pointerX, scene.pointerY);
             if (pickResult && pickResult.hit && pickResult.pickedMesh) {
-                currentSelectedObject.current = pickResult.pickedMesh;
-                document.dispatchEvent(new CustomEvent("objectSelected", { detail: { amplitude: 2, duration: 200 } }));
+                document.dispatchEvent(new CustomEvent("objectSelected", { detail: { mesh: pickResult.pickedMesh } }));
             }
         };
 
@@ -120,14 +118,10 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected }) => {
             // Access Babylon.js objects from the event details
             const customEvent = event as CustomEvent;
             if (customEvent.detail) {
-                if (!currentSelectedObject.current) {
-                    return
-                }
-                setObjectSelected(currentSelectedObject.current)
-                const { amplitude, duration } = customEvent.detail;
-                applyBouncing(currentSelectedObject.current, amplitude, duration);
-                setAnimationDuration(duration)
-                setAnimationAmplitude(amplitude)
+                const { mesh } = customEvent.detail;
+                currentSelectedObject.current = mesh;
+                setObjectSelected(mesh)
+                applyBouncing(mesh, animationAmplitude, animationDuration);
             }
         };
         const handleAnimateObjectSelected = () => {
