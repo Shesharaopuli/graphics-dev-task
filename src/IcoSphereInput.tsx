@@ -20,7 +20,7 @@ const reducer = (state: IcoSphereState, action: IcoSphereAction): IcoSphereState
             return state;
     }
 };
-export const ICO_SPHERE_DEFAULTS = { radius: 0.5, subdivisions: 5 };
+export const ICO_SPHERE_DEFAULTS = { radius: 1, subdivisions: 5 };
 interface BabylonSceneProps {
     model: TransformNode | null;
     animate: () => void
@@ -32,7 +32,7 @@ const IcoSphereInput: React.FC<BabylonSceneProps> = ({ model, animate }) => {
     const updateSubDivisions = (value: any) => dispatch({ type: 'UPDATE_SUBDIVISIONS', payload: value });
 
     const updateObject = () => {
-        const { radius, subdivisions } = state
+        const { radius } = state
         if (model) {
             model.scaling = new Vector3(radius, radius, radius); // Adjust scaling based on radius
         }

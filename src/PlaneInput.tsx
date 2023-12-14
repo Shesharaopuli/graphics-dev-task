@@ -24,7 +24,7 @@ const reducer = (state: PlaneState, action: PlaneAction): PlaneState => {
             return state;
     }
 };
-export const PLANE_DEFAULTS = { width: 0.5, height: 0.5, depth: 0.5 };
+export const PLANE_DEFAULTS = { width: 1, height: 1, depth: 1 };
 interface BabylonSceneProps {
     model: TransformNode | null;
     animate: () => void;
@@ -41,7 +41,6 @@ const PlaneInput: React.FC<BabylonSceneProps> = ({ model, animate }) => {
         if (model) {
             model.scaling = new Vector3(width, height, depth);
         }
-
     }
     return (
         <div className="controls-container">

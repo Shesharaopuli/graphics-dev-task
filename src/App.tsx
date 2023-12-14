@@ -6,6 +6,7 @@ import IcoSphereInput from './IcoSphereInput';
 import CylinderInput from './CylinderInput';
 
 function App() {
+  // Feel free to change amplitude & duration
   const amplitude = 4
   const duration = 200
 

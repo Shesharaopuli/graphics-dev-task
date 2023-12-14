@@ -20,7 +20,7 @@ const reducer = (state: CylinderState, action: CylinderAction): CylinderState =>
             return state;
     }
 };
-export const CYLINDER_DEFAULTS = { diameter: 0.5, height: 1 };
+export const CYLINDER_DEFAULTS = { diameter: 1, height: 1 };
 interface BabylonSceneProps {
     model: TransformNode | null;
     animate: () => void
