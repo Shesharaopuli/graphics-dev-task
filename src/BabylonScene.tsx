@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, TransformNode, Animation } from 'babylonjs';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, MeshBuilder, TransformNode, Animation, Mesh } from 'babylonjs';
 import 'babylonjs-loaders';
 import { PLANE_DEFAULTS } from './PlaneInput';
 import { ICO_SPHERE_DEFAULTS } from './IcoSphereInput';
@@ -46,7 +46,7 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected, animatio
         // Attach animation to the mesh
         node.animations.push(bounceAnimation);
         // Run the animation
-        sceneRef.current.beginWeightedAnimation(node, 0, duration, 10, true);
+        sceneRef.current.beginWeightedAnimation(node, 0, duration, 7, true);
     }
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -75,12 +75,12 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected, animatio
             const createIcoSphere = () => {
                 const { radius, subdivisions } = ICO_SPHERE_DEFAULTS
                 const icosphere = MeshBuilder.CreateIcoSphere("IcoSphere", { radius, subdivisions }, scene);
-                icosphere.position.set(-2, 0, 0);
+                icosphere.position.set(-3, 0, 0);
             }
             const createCylinder = () => {
                 const { diameter, height } = CYLINDER_DEFAULTS
                 const cylinder = MeshBuilder.CreateCylinder("Cylinder", { diameter, height }, scene);
-                cylinder.position.set(2, 0, 0);
+                cylinder.position.set(3, 0, 0);
             }
 
             // Objects
@@ -112,12 +112,40 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected, animatio
 
         };
     }, []); // Empty dependency array ensures this effect runs once after the initial render
+    const resetProperties = useCallback((model: Mesh) => {
+        switch (model.name) {
+            case "Plane":
+                resetPlane(model)
+                break;
+            case "Cylinder":
+                resetCylinder(model)
+                break;
+            case "IcoSphere":
+                resetIcoSphere(model)
+                break;
+        }
+    }, [])
 
+    const resetPlane = (model: Mesh) => {
+        const { width, height, depth } = PLANE_DEFAULTS
+        model.scaling = new Vector3(width, height, depth);
+    }
+    const resetCylinder = (model: Mesh) => {
+        const { diameter, height } = CYLINDER_DEFAULTS
+        model.scaling = new Vector3(diameter, diameter, height);
+    }
+    const resetIcoSphere = (model: Mesh) => {
+        const { radius } = ICO_SPHERE_DEFAULTS
+        model.scaling = new Vector3(radius, radius, radius); // Adjust scaling based on radius
+    }
     useEffect(() => {
         const handleObjectSelected = (event: Event) => {
             // Access Babylon.js objects from the event details
             const customEvent = event as CustomEvent;
             if (customEvent.detail) {
+                if (currentSelectedObject.current) {
+                    resetProperties(currentSelectedObject.current)
+                }
                 const { mesh } = customEvent.detail;
                 currentSelectedObject.current = mesh;
                 setObjectSelected(mesh)
@@ -135,7 +163,7 @@ const BabylonScene: React.FC<BabylonSceneProps> = ({ setObjectSelected, animatio
             document.removeEventListener('objectSelected', handleObjectSelected);
             document.removeEventListener('animateObjectSelected', handleAnimateObjectSelected);
         };
-    }, [animationAmplitude, animationDuration, setObjectSelected]);
+    }, [animationAmplitude, animationDuration, setObjectSelected, resetProperties]);
 
     return <canvas id="canvas" ref={canvasRef} />;
 };
